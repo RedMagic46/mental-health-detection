@@ -1,6 +1,6 @@
 import { userRepo } from '@/lib/db';
 import { hashPassword, createToken, setSessionCookie } from '@/lib/auth';
-import { isValidEmail, isValidPassword, isNonEmptyString, sanitize, errorResponse } from '@/lib/validation';
+import { isValidEmail, isValidPassword, isValidName, sanitize, errorResponse } from '@/lib/validation';
 import type { JwtPayload } from '@/lib/types';
 
 export async function POST(request: Request) {
@@ -9,8 +9,8 @@ export async function POST(request: Request) {
     const { name, email, password } = body;
 
     // Validate inputs
-    if (!isNonEmptyString(name)) {
-      return errorResponse('Nama harus diisi.', 400);
+    if (!isValidName(name)) {
+      return errorResponse('Nama tidak valid. Tidak boleh mengandung karakter khusus atau tag HTML.', 400);
     }
     if (!isValidEmail(email)) {
       return errorResponse('Format email tidak valid.', 400);
@@ -46,7 +46,6 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('[Register Error]:', error);
     return errorResponse('Terjadi kesalahan server.', 500);
   }
 }

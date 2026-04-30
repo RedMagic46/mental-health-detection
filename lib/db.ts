@@ -3,7 +3,7 @@
 // ============================================================
 
 import { supabaseAdmin } from './supabase';
-import type { User, Assessment, Consultation, Question } from './types';
+import type { User, Assessment, Consultation, Question, AssessmentConfig } from './types';
 
 // ============================================================
 // USER repository
@@ -78,6 +78,15 @@ export const userRepo = {
     
     if (error) return 0;
     return count || 0;
+  },
+
+  async updatePassword(email: string, passwordHash: string): Promise<boolean> {
+    const { error } = await supabaseAdmin
+      .from('users')
+      .update({ password_hash: passwordHash })
+      .eq('email', email);
+    
+    return !error;
   },
 };
 
@@ -347,5 +356,96 @@ export const questionRepo = {
     
     if (error) return 0;
     return count || 0;
+  },
+};
+
+// ============================================================
+// PASSWORD RESET repository
+// ============================================================
+export const passwordResetRepo = {
+  async create(email: string, otp: string, expiresAt: Date) {
+    // Delete any existing OTP for this email first
+    await this.deleteByEmail(email);
+
+    const { data, error } = await supabaseAdmin
+      .from('password_resets')
+      .insert({
+        email,
+        otp,
+        expires_at: expiresAt.toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(`Failed to create password reset: ${error.message}`);
+    return data;
+  },
+
+  async findValidOTP(email: string, otp: string) {
+    const { data, error } = await supabaseAdmin
+      .from('password_resets')
+      .select('*')
+      .eq('email', email)
+      .eq('otp', otp)
+      .gt('expires_at', new Date().toISOString())
+      .single();
+
+    if (error || !data) return undefined;
+    return data;
+  },
+
+  async deleteByEmail(email: string) {
+    const { error } = await supabaseAdmin
+      .from('password_resets')
+      .delete()
+      .eq('email', email);
+    
+    return !error;
+  },
+};
+
+// ============================================================
+// SETTINGS repository
+// ============================================================
+export const settingsRepo = {
+  async getConfig(): Promise<AssessmentConfig> {
+    const { data, error } = await supabaseAdmin
+      .from('settings')
+      .select('*')
+      .eq('id', 'assessment_config')
+      .single();
+
+    if (error || !data) {
+      // Default configuration if not found
+      return {
+        id: 'assessment_config',
+        displayCount: 10,
+        selectionMode: 'random',
+        manualQuestionIds: [],
+        randomizeOrder: true,
+      };
+    }
+
+    return {
+      id: data.id,
+      displayCount: data.display_count,
+      selectionMode: data.selection_mode,
+      manualQuestionIds: data.manual_question_ids || [],
+      randomizeOrder: data.randomize_order,
+    };
+  },
+
+  async updateConfig(data: Partial<Omit<AssessmentConfig, 'id'>>): Promise<boolean> {
+    const updateData: any = {};
+    if (data.displayCount !== undefined) updateData.display_count = data.displayCount;
+    if (data.selectionMode !== undefined) updateData.selection_mode = data.selectionMode;
+    if (data.manualQuestionIds !== undefined) updateData.manual_question_ids = data.manualQuestionIds;
+    if (data.randomizeOrder !== undefined) updateData.randomize_order = data.randomizeOrder;
+
+    const { error } = await supabaseAdmin
+      .from('settings')
+      .upsert({ id: 'assessment_config', ...updateData });
+
+    return !error;
   },
 };

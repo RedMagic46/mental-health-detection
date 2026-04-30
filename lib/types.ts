@@ -51,3 +51,19 @@ export interface JwtPayload {
   email: string;
   role: UserRole;
 }
+
+export interface PasswordReset {
+  id: string;
+  email: string;
+  otp: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface AssessmentConfig {
+  id: string;
+  displayCount: number;
+  selectionMode: 'manual' | 'random';
+  manualQuestionIds: number[];
+  randomizeOrder: boolean;
+}

@@ -9,7 +9,14 @@ import { cookies } from 'next/headers';
 import { userRepo } from './db';
 import type { JwtPayload, SafeUser, User } from './types';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'mindcare-dev-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('FATAL: JWT_SECRET environment variable is not set!');
+  }
+  console.warn('[AUTH] WARNING: JWT_SECRET not set, using insecure default. Set JWT_SECRET in .env.local!');
+}
+const SECRET = JWT_SECRET || 'mindcare-dev-secret-DO-NOT-USE-IN-PROD';
 const COOKIE_NAME = 'mindcare_session';
 const TOKEN_EXPIRY = '7d';
 const SALT_ROUNDS = 10;
@@ -27,12 +34,12 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 // --------------- JWT helpers ---------------
 
 export function createToken(payload: JwtPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+  return jwt.sign(payload, SECRET, { expiresIn: TOKEN_EXPIRY });
 }
 
 export function verifyToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JwtPayload;
+    return jwt.verify(token, SECRET) as JwtPayload;
   } catch {
     return null;
   }

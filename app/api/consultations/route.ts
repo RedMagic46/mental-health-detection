@@ -1,6 +1,6 @@
 import { requireAuth } from '@/lib/auth';
 import { consultationRepo } from '@/lib/db';
-import { isNonEmptyString, isValidEmail, sanitize, errorResponse } from '@/lib/validation';
+import { isNonEmptyString, isValidEmail, isValidName, sanitize, errorResponse } from '@/lib/validation';
 
 export async function POST(request: Request) {
   try {
@@ -14,9 +14,14 @@ export async function POST(request: Request) {
     // User can be authenticated or anonymous
     const user = await requireAuth();
 
+    // Reject names with HTML/script content
+    if (isNonEmptyString(name) && !isValidName(name)) {
+      return errorResponse('Nama tidak valid. Tidak boleh mengandung tag HTML.', 400);
+    }
+
     const consultation = await consultationRepo.create({
       userId: user?.id ?? null,
-      name: isNonEmptyString(name) ? sanitize(name) : (user?.name ?? 'Anonim'),
+      name: isValidName(name) ? sanitize(name) : (user?.name ? sanitize(user.name) : 'Anonim'),
       email: isValidEmail(email) ? email.toLowerCase().trim() : (user?.email ?? ''),
       message: sanitize(message),
       status: 'new',
