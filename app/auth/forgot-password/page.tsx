@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
         <Link
-          href="/auth/login"
+          href="/login"
           className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Kembali ke Login

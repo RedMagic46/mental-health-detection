@@ -2,10 +2,9 @@ import { userRepo, passwordResetRepo } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 import { isValidEmail, isValidPassword, errorResponse } from '@/lib/validation';
 
-// Rate limiter for OTP verification attempts
 const verifyAttemptLog = new Map<string, { count: number; blockedUntil: number }>();
-const MAX_VERIFY_ATTEMPTS = 5; // max 5 attempts
-const BLOCK_DURATION_MS = 30 * 60 * 1000; // block for 30 minutes after exceeding
+const MAX_VERIFY_ATTEMPTS = 3;
+const BLOCK_DURATION_MS = 30 * 60 * 1000;
 
 function isVerifyBlocked(email: string): boolean {
   const now = Date.now();

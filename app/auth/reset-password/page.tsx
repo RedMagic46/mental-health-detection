@@ -45,7 +45,7 @@ function ResetPasswordForm() {
       if (res.ok) {
         setSuccess(true);
         setTimeout(() => {
-          router.push('/auth/login');
+          router.push('/login');
         }, 3000);
       } else {
         setError(data.error || 'Gagal mereset password.');
@@ -68,7 +68,7 @@ function ResetPasswordForm() {
           Password Anda telah berhasil diubah. Anda akan dialihkan ke halaman login dalam beberapa detik.
         </p>
         <Link
-          href="/auth/login"
+          href="/login"
           className="text-primary hover:underline font-medium"
         >
           Klik di sini jika tidak beralih otomatis
