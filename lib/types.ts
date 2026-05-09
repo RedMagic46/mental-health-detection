@@ -38,6 +38,15 @@ export interface Consultation {
   createdAt: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  consultationId: string;
+  senderId: string;
+  senderRole: 'user' | 'admin';
+  message: string;
+  createdAt: string;
+}
+
 export interface Question {
   id: number;
   text: string;

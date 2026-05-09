@@ -2,6 +2,16 @@ import { requireAuth } from '@/lib/auth';
 import { consultationRepo } from '@/lib/db';
 import { isNonEmptyString, isValidEmail, isValidName, sanitize, errorResponse } from '@/lib/validation';
 
+export async function GET() {
+  const user = await requireAuth();
+  if (!user) {
+    return errorResponse('Unauthorized.', 401);
+  }
+
+  const consultations = await consultationRepo.findByUserId(user.id);
+  return Response.json({ consultations });
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -42,3 +52,4 @@ export async function POST(request: Request) {
     return errorResponse('Terjadi kesalahan server.', 500);
   }
 }
+

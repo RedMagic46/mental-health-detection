@@ -3,7 +3,7 @@
 // ============================================================
 
 import { supabaseAdmin } from './supabase';
-import type { User, Assessment, Consultation, Question, AssessmentConfig } from './types';
+import type { User, Assessment, Consultation, ChatMessage, Question, AssessmentConfig } from './types';
 
 // ============================================================
 // USER repository
@@ -257,6 +257,26 @@ export const consultationRepo = {
     };
   },
 
+  async findByUserId(userId: string): Promise<Consultation[]> {
+    const { data, error } = await supabaseAdmin
+      .from('consultations')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) return [];
+
+    return data.map((c) => ({
+      id: c.id,
+      userId: c.user_id,
+      name: c.name,
+      email: c.email,
+      message: c.message,
+      status: c.status,
+      createdAt: c.created_at,
+    }));
+  },
+
   async count(): Promise<number> {
     const { count, error } = await supabaseAdmin
       .from('consultations')
@@ -274,6 +294,54 @@ export const consultationRepo = {
     
     if (error) return 0;
     return count || 0;
+  },
+};
+
+// ============================================================
+// CHAT MESSAGE repository
+// ============================================================
+export const chatMessageRepo = {
+  async create(data: Omit<ChatMessage, 'id' | 'createdAt'>): Promise<ChatMessage> {
+    const { data: newMsg, error } = await supabaseAdmin
+      .from('chat_messages')
+      .insert({
+        consultation_id: data.consultationId,
+        sender_id: data.senderId,
+        sender_role: data.senderRole,
+        message: data.message,
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(`Failed to create chat message: ${error.message}`);
+
+    return {
+      id: newMsg.id,
+      consultationId: newMsg.consultation_id,
+      senderId: newMsg.sender_id,
+      senderRole: newMsg.sender_role,
+      message: newMsg.message,
+      createdAt: newMsg.created_at,
+    };
+  },
+
+  async findByConsultationId(consultationId: string): Promise<ChatMessage[]> {
+    const { data, error } = await supabaseAdmin
+      .from('chat_messages')
+      .select('*')
+      .eq('consultation_id', consultationId)
+      .order('created_at', { ascending: true });
+
+    if (error) return [];
+
+    return data.map((m) => ({
+      id: m.id,
+      consultationId: m.consultation_id,
+      senderId: m.sender_id,
+      senderRole: m.sender_role,
+      message: m.message,
+      createdAt: m.created_at,
+    }));
   },
 };
 
