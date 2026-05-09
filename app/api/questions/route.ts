@@ -10,13 +10,22 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const categoryParam = searchParams.get('category');
+
   const [questions, config] = await Promise.all([
     questionRepo.findAll(),
     settingsRepo.getConfig(),
   ]);
 
   let filteredQuestions = [...questions];
+
+  if (categoryParam) {
+    filteredQuestions = filteredQuestions.filter(
+      q => q.category && q.category.toLowerCase() === categoryParam.toLowerCase()
+    );
+  }
 
   // 1. Filter by manual selection if mode is manual
   if (config.selectionMode === 'manual' && config.manualQuestionIds.length > 0) {

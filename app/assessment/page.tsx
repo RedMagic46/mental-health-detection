@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -18,7 +18,7 @@ const options = [
   { value: 3, label: 'Hampir setiap hari' },
 ];
 
-export default function AssessmentPage() {
+function AssessmentContent() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -27,12 +27,16 @@ export default function AssessmentPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+  const category = searchParams.get('category');
+
   useEffect(() => {
-    fetch('/api/questions')
+    const url = category ? `/api/questions?category=${category}` : '/api/questions';
+    fetch(url)
       .then(r => r.json())
       .then(d => { setQuestions(d.questions); setLoadingQ(false); })
       .catch(() => { setError('Gagal memuat pertanyaan.'); setLoadingQ(false); });
-  }, []);
+  }, [category]);
 
   if (loadingQ) {
     return (
@@ -141,5 +145,17 @@ export default function AssessmentPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AssessmentPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex-grow flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <AssessmentContent />
+    </Suspense>
   );
 }

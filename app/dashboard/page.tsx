@@ -62,7 +62,7 @@ export default function UserDashboard() {
             <div>
               <h2 className="text-2xl font-semibold mb-2">Cek Kondisi Anda Hari Ini</h2>
               <p className="text-primary-foreground/80 mb-4 max-w-md">Ikuti kuesioner singkat kami untuk mendeteksi potensi masalah kesehatan mental lebih dini.</p>
-              <Link href="/assessment" className="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-full font-semibold hover:bg-teal-50 transition-colors">
+              <Link href="/assessment/category" className="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-full font-semibold hover:bg-teal-50 transition-colors">
                 Mulai Kuesioner <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -79,7 +79,7 @@ export default function UserDashboard() {
               ) : history.length === 0 ? (
                 <>
                   <p className="text-muted-foreground text-sm mb-4">Belum ada tes.</p>
-                  <Link href="/assessment" className="text-primary text-sm font-medium hover:underline">Mulai tes pertama</Link>
+                  <Link href="/assessment/category" className="text-primary text-sm font-medium hover:underline">Mulai tes pertama</Link>
                 </>
               ) : (
                 <div className="space-y-2">
