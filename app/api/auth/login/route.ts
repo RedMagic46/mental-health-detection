@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     await setSessionCookie(token);
 
     return Response.json({
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, createdAt: user.createdAt },
       message: 'Login berhasil.',
     });
   } catch {

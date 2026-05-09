@@ -68,8 +68,14 @@ export async function POST(request: Request) {
     // Hash new password
     const passwordHash = await hashPassword(newPassword);
 
+    // Find user by email
+    const user = await userRepo.findByEmail(normalizedEmail);
+    if (!user) {
+      return errorResponse('Pengguna tidak ditemukan.', 404);
+    }
+
     // Update user password
-    const updated = await userRepo.updatePassword(normalizedEmail, passwordHash);
+    const updated = await userRepo.update(user.id, { passwordHash });
     if (!updated) {
       return errorResponse('Gagal memperbarui password.', 500);
     }
