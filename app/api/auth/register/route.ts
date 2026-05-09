@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     return Response.json(
       {
-        user: { id: user.id, name: user.name, email: user.email, role: user.role },
+        user: { id: user.id, name: user.name, email: user.email, role: user.role, createdAt: user.createdAt },
         message: 'Registrasi berhasil.',
       },
       { status: 201 }

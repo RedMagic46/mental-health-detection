@@ -1,21 +1,35 @@
 'use client';
 
 import Link from 'next/link';
-import { HeartPulse } from 'lucide-react';
+import { HeartPulse, User as UserIcon, LogOut, LayoutDashboard, ClipboardList, MessageSquare, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '../store/useStore';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export default function Navbar() {
   const { isAuthenticated, user, logoutApi, fetchUser, isLoading } = useAuthStore();
   const router = useRouter();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleLogout = async () => {
     await logoutApi();
+    setIsDropdownOpen(false);
     router.push('/');
   };
 
@@ -58,37 +72,109 @@ export default function Navbar() {
                 </Link>
               </>
             ) : (
-              <>
-                <Link href={user?.role === 'admin' ? "/admin/dashboard" : "/dashboard"} className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  Dashboard
-                </Link>
-                {user?.role === 'user' && (
-                  <>
-                    <Link href="/assessment" className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                      Tes
-                    </Link>
-                    <Link href="/consultations" className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                      Konsultasi
-                    </Link>
-                  </>
-                )}
-                {user?.role === 'admin' && (
-                  <>
-                    <Link href="/admin/consultations" className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                      Konsultasi
-                    </Link>
-                    <Link href="/admin/questions" className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                      Pertanyaan
-                    </Link>
-                  </>
-                )}
-                <span className="text-sm text-muted-foreground hidden md:block">
-                  {user?.name}
-                </span>
-                <button onClick={handleLogout} className="text-foreground hover:text-destructive px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  Logout
-                </button>
-              </>
+              <div className="flex items-center gap-2 sm:gap-4">
+                {/* Desktop Navigation Links */}
+                <div className="hidden md:flex items-center gap-4">
+                  <Link href={user?.role === 'admin' ? "/admin/dashboard" : "/dashboard"} className="text-foreground hover:text-primary px-2 py-2 rounded-md text-sm font-medium transition-colors">
+                    Dashboard
+                  </Link>
+                  {user?.role === 'user' && (
+                    <>
+                      <Link href="/assessment" className="text-foreground hover:text-primary px-2 py-2 rounded-md text-sm font-medium transition-colors">
+                        Tes
+                      </Link>
+                      <Link href="/consultations" className="text-foreground hover:text-primary px-2 py-2 rounded-md text-sm font-medium transition-colors">
+                        Konsultasi
+                      </Link>
+                    </>
+                  )}
+                  {user?.role === 'admin' && (
+                    <>
+                      <Link href="/admin/consultations" className="text-foreground hover:text-primary px-2 py-2 rounded-md text-sm font-medium transition-colors">
+                        Konsultasi
+                      </Link>
+                      <Link href="/admin/questions" className="text-foreground hover:text-primary px-2 py-2 rounded-md text-sm font-medium transition-colors">
+                        Pertanyaan
+                      </Link>
+                    </>
+                  )}
+                </div>
+
+                {/* Profile Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-colors focus:outline-none"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                      <UserIcon className="w-5 h-5" />
+                    </div>
+                    <span className="hidden sm:block text-sm font-medium text-foreground">
+                      {user?.name?.split(' ')[0]}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white border border-border rounded-xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="px-4 py-2 border-b border-border mb-1">
+                        <p className="text-sm font-semibold text-foreground truncate">{user?.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                      </div>
+
+                      <div className="md:hidden">
+                        <Link
+                          href={user?.role === 'admin' ? "/admin/dashboard" : "/dashboard"}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-slate-50 transition-colors"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
+                          Dashboard
+                        </Link>
+                        {user?.role === 'user' && (
+                          <>
+                            <Link
+                              href="/assessment"
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-slate-50 transition-colors"
+                              onClick={() => setIsDropdownOpen(false)}
+                            >
+                              <ClipboardList className="w-4 h-4 text-muted-foreground" />
+                              Tes Mental
+                            </Link>
+                            <Link
+                              href="/consultations"
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-slate-50 transition-colors"
+                              onClick={() => setIsDropdownOpen(false)}
+                            >
+                              <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                              Konsultasi
+                            </Link>
+                          </>
+                        )}
+                      </div>
+
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-slate-50 transition-colors"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <UserIcon className="w-4 h-4 text-muted-foreground" />
+                        Profil Saya
+                      </Link>
+
+                      <div className="border-t border-border mt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-destructive/5 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Keluar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </nav>
         </div>

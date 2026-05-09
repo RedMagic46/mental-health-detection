@@ -80,13 +80,30 @@ export const userRepo = {
     return count || 0;
   },
 
-  async updatePassword(email: string, passwordHash: string): Promise<boolean> {
-    const { error } = await supabaseAdmin
+  async update(id: string, data: Partial<Omit<User, 'id' | 'createdAt'>>): Promise<User | undefined> {
+    const updateData: any = {};
+    if (data.name) updateData.name = data.name;
+    if (data.email) updateData.email = data.email;
+    if (data.role) updateData.role = data.role;
+    if (data.passwordHash) updateData.password_hash = data.passwordHash;
+
+    const { data: updatedUser, error } = await supabaseAdmin
       .from('users')
-      .update({ password_hash: passwordHash })
-      .eq('email', email);
-    
-    return !error;
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !updatedUser) return undefined;
+
+    return {
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      passwordHash: updatedUser.password_hash,
+      role: updatedUser.role,
+      createdAt: updatedUser.created_at,
+    };
   },
 };
 
