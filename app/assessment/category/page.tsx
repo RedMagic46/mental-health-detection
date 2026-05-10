@@ -20,7 +20,7 @@ const categories = [
   },
   {
     id: 'depresi',
-    name: 'Depresi',
+    name: 'Depresi (Depression)',
     description: 'Kenali tanda-tanda depresi seperti kesedihan mendalam atau hilangnya minat.',
     icon: HeartCrack,
     color: 'bg-purple-100 text-purple-700 border-purple-200 hover:border-purple-500 hover:bg-purple-50',

@@ -21,25 +21,35 @@ export async function GET(request: Request) {
 
   let filteredQuestions = [...questions];
 
+  const categoryMap: Record<string, string> = {
+    'anxiety': 'Kecemasan',
+    'stress': 'Stress',
+    'depresi': 'Depresi',
+  };
+
   if (categoryParam) {
+    const dbCategory = categoryMap[categoryParam.toLowerCase()] || categoryParam;
     filteredQuestions = filteredQuestions.filter(
-      q => q.category && q.category.toLowerCase() === categoryParam.toLowerCase()
+      q => q.category && q.category.toLowerCase() === dbCategory.toLowerCase()
     );
-  }
+    
+    // Pastikan soal diurutkan sesuai primary key (id) secara menaik
+    filteredQuestions.sort((a, b) => a.id - b.id);
+  } else {
+    // 1. Filter by manual selection if mode is manual
+    if (config.selectionMode === 'manual' && config.manualQuestionIds.length > 0) {
+      filteredQuestions = questions.filter(q => config.manualQuestionIds.includes(q.id));
+    }
 
-  // 1. Filter by manual selection if mode is manual
-  if (config.selectionMode === 'manual' && config.manualQuestionIds.length > 0) {
-    filteredQuestions = questions.filter(q => config.manualQuestionIds.includes(q.id));
-  }
+    // 2. Randomize order if enabled OR if mode is random (to pick random set)
+    if (config.randomizeOrder || config.selectionMode === 'random') {
+      filteredQuestions = shuffle(filteredQuestions);
+    }
 
-  // 2. Randomize order if enabled OR if mode is random (to pick random set)
-  if (config.randomizeOrder || config.selectionMode === 'random') {
-    filteredQuestions = shuffle(filteredQuestions);
-  }
-
-  // 3. Limit the count
-  if (config.displayCount > 0) {
-    filteredQuestions = filteredQuestions.slice(0, config.displayCount);
+    // 3. Limit the count
+    if (config.displayCount > 0) {
+      filteredQuestions = filteredQuestions.slice(0, config.displayCount);
+    }
   }
 
   return Response.json(
