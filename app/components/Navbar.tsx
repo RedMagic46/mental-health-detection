@@ -64,7 +64,7 @@ export default function Navbar() {
                 </Link>
                 {user?.role === 'user' && (
                   <>
-                    <Link href="/assessment" className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    <Link href="/assessment/category" className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
                       Tes
                     </Link>
                     <Link href="/consultations" className="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
