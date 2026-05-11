@@ -7,6 +7,7 @@ interface User {
   name: string;
   email: string;
   role: UserRole;
+  createdAt?: string;
 }
 
 interface AuthState {
@@ -18,6 +19,7 @@ interface AuthState {
   fetchUser: () => Promise<void>;
   loginApi: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   registerApi: (name: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  updateProfileApi: (name: string, email: string) => Promise<{ ok: boolean; error?: string }>;
   logoutApi: () => Promise<void>;
 }
 
@@ -74,6 +76,24 @@ export const useAuthStore = create<AuthState>((set) => ({
         return { ok: true };
       }
       return { ok: false, error: data.error || 'Registrasi gagal.' };
+    } catch {
+      return { ok: false, error: 'Terjadi kesalahan jaringan.' };
+    }
+  },
+
+  updateProfileApi: async (name, email) => {
+    try {
+      const res = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        set({ user: data.user });
+        return { ok: true };
+      }
+      return { ok: false, error: data.error || 'Gagal memperbarui profil.' };
     } catch {
       return { ok: false, error: 'Terjadi kesalahan jaringan.' };
     }
