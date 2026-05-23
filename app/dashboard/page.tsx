@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { FileText, Calendar, Activity, ArrowRight, Smile, Meh, Frown } from 'lucide-react';
+import MoodChart from "../components/MoodChart";
 
 interface AssessmentHistory {
   id: string;
@@ -17,6 +18,9 @@ export default function UserDashboard() {
   const { user, isAuthenticated, isLoading } = useAuthStore();
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [moodData, setMoodData] = useState([
+    { day: "Mon", mood: 3 },
+    { day: "Tue", mood: 4 },]);
   const [history, setHistory] = useState<AssessmentHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
@@ -62,7 +66,7 @@ export default function UserDashboard() {
             <div>
               <h2 className="text-2xl font-semibold mb-2">Cek Kondisi Anda Hari Ini</h2>
               <p className="text-primary-foreground/80 mb-4 max-w-md">Ikuti kuesioner singkat kami untuk mendeteksi potensi masalah kesehatan mental lebih dini.</p>
-              <Link href="/assessment" className="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-full font-semibold hover:bg-teal-50 transition-colors">
+              <Link href="/assessment/category" className="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-full font-semibold hover:bg-teal-50 transition-colors">
                 Mulai Kuesioner <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -79,7 +83,7 @@ export default function UserDashboard() {
               ) : history.length === 0 ? (
                 <>
                   <p className="text-muted-foreground text-sm mb-4">Belum ada tes.</p>
-                  <Link href="/assessment" className="text-primary text-sm font-medium hover:underline">Mulai tes pertama</Link>
+                  <Link href="/assessment/category" className="text-primary text-sm font-medium hover:underline">Mulai tes pertama</Link>
                 </>
               ) : (
                 <div className="space-y-2">
@@ -108,16 +112,46 @@ export default function UserDashboard() {
             <p className="text-sm text-muted-foreground mb-4">Bagaimana perasaan Anda hari ini?</p>
             <div className="flex justify-between">
               {[{ key: 'good', Icon: Smile, label: 'Baik', active: 'bg-green-100 text-green-700' },
-                { key: 'neutral', Icon: Meh, label: 'Biasa', active: 'bg-yellow-100 text-yellow-700' },
-                { key: 'bad', Icon: Frown, label: 'Buruk', active: 'bg-red-100 text-red-700' }]
+              { key: 'neutral', Icon: Meh, label: 'Biasa', active: 'bg-yellow-100 text-yellow-700' },
+              { key: 'bad', Icon: Frown, label: 'Buruk', active: 'bg-red-100 text-red-700' }]
                 .map(({ key, Icon, label, active }) => (
-                  <button key={key} onClick={() => setSelectedMood(key)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-colors ${selectedMood === key ? active : 'hover:bg-slate-50 text-slate-500'}`}>
-                    <Icon className="w-8 h-8" /><span className="text-xs font-medium">{label}</span>
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setSelectedMood(key);
+
+                      const moodValue =
+                        key === "good"
+                          ? 5
+                          : key === "neutral"
+                            ? 3
+                            : 1;
+
+                      setMoodData((prev) => [
+                        ...prev,
+                        {
+                          day: new Date().toLocaleDateString("en-US", {
+                            weekday: "short",
+                          }),
+                          mood: moodValue,
+                        },
+                      ]);
+                    }}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-colors ${selectedMood === key
+                      ? active
+                      : "hover:bg-slate-50 text-slate-500"
+                      }`}
+                  >
+                    <Icon className="w-8 h-8" />
+                    <span className="text-xs font-medium">
+                      {label}
+                    </span>
                   </button>
-                ))}
+                ))
+              }
             </div>
           </div>
+          <MoodChart data={moodData} />
           <div className="bg-slate-50 p-6 rounded-2xl border border-border">
             <h3 className="font-semibold text-lg mb-2">Tips Hari Ini</h3>
             <p className="text-sm text-muted-foreground italic">&quot;Tarik napas dalam-dalam, tahan selama 4 detik, dan hembuskan perlahan.&quot;</p>
