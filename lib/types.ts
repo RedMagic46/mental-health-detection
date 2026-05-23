@@ -47,6 +47,14 @@ export interface ChatMessage {
   createdAt: string;
 }
 
+export interface MoodLog {
+  id: string;
+  userId: string;
+  mood: 'good' | 'neutral' | 'bad';
+  moodValue: number;
+  createdAt: string;
+}
+
 export interface Question {
   id: number;
   text: string;

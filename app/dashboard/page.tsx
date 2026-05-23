@@ -18,9 +18,7 @@ export default function UserDashboard() {
   const { user, isAuthenticated, isLoading } = useAuthStore();
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [moodData, setMoodData] = useState([
-    { day: "Mon", mood: 3 },
-    { day: "Tue", mood: 4 },]);
+  const [moodData, setMoodData] = useState<{ day: string; mood: number }[]>([]);
   const [history, setHistory] = useState<AssessmentHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
@@ -36,6 +34,36 @@ export default function UserDashboard() {
     }
   }, []);
 
+  const fetchMoodData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/mood');
+      if (res.ok) {
+        const data = await res.json();
+        setMoodData(data.chartData || []);
+        if (data.todayMood) {
+          setSelectedMood(data.todayMood.mood);
+        }
+      }
+    } catch { /* silent */ }
+  }, []);
+
+  const handleMoodSelect = async (mood: string) => {
+    setSelectedMood(mood);
+    try {
+      const res = await fetch('/api/mood', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mood }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.chartData) {
+          setMoodData(data.chartData);
+        }
+      }
+    } catch { /* silent */ }
+  };
+
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.role !== 'user')) {
       router.push('/login');
@@ -43,8 +71,11 @@ export default function UserDashboard() {
   }, [isAuthenticated, user, router, isLoading]);
 
   useEffect(() => {
-    if (isAuthenticated && user?.role === 'user') fetchHistory();
-  }, [isAuthenticated, user, fetchHistory]);
+    if (isAuthenticated && user?.role === 'user') {
+      fetchHistory();
+      fetchMoodData();
+    }
+  }, [isAuthenticated, user, fetchHistory, fetchMoodData]);
 
   if (isLoading || !isAuthenticated || user?.role !== 'user') return null;
 
@@ -117,26 +148,7 @@ export default function UserDashboard() {
                 .map(({ key, Icon, label, active }) => (
                   <button
                     key={key}
-                    onClick={() => {
-                      setSelectedMood(key);
-
-                      const moodValue =
-                        key === "good"
-                          ? 5
-                          : key === "neutral"
-                            ? 3
-                            : 1;
-
-                      setMoodData((prev) => [
-                        ...prev,
-                        {
-                          day: new Date().toLocaleDateString("en-US", {
-                            weekday: "short",
-                          }),
-                          mood: moodValue,
-                        },
-                      ]);
-                    }}
+                    onClick={() => handleMoodSelect(key)}
                     className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-colors ${selectedMood === key
                       ? active
                       : "hover:bg-slate-50 text-slate-500"

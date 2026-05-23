@@ -3,7 +3,7 @@
 // ============================================================
 
 import { supabaseAdmin } from './supabase';
-import type { User, Assessment, Consultation, ChatMessage, Question, AssessmentConfig } from './types';
+import type { User, Assessment, Consultation, ChatMessage, Question, AssessmentConfig, MoodLog } from './types';
 
 // ============================================================
 // USER repository
@@ -532,5 +532,98 @@ export const settingsRepo = {
       .upsert({ id: 'assessment_config', ...updateData });
 
     return !error;
+  },
+};
+
+// ============================================================
+// MOOD LOG repository
+// ============================================================
+export const moodRepo = {
+  async create(data: Omit<MoodLog, 'id' | 'createdAt'>): Promise<MoodLog> {
+    const { data: newMood, error } = await supabaseAdmin
+      .from('mood_logs')
+      .insert({
+        user_id: data.userId,
+        mood: data.mood,
+        mood_value: data.moodValue,
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(`Failed to create mood log: ${error.message}`);
+
+    return {
+      id: newMood.id,
+      userId: newMood.user_id,
+      mood: newMood.mood,
+      moodValue: newMood.mood_value,
+      createdAt: newMood.created_at,
+    };
+  },
+
+  async findByUserId(userId: string, limit: number = 7): Promise<MoodLog[]> {
+    const { data, error } = await supabaseAdmin
+      .from('mood_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) return [];
+
+    return data.map((m) => ({
+      id: m.id,
+      userId: m.user_id,
+      mood: m.mood,
+      moodValue: m.mood_value,
+      createdAt: m.created_at,
+    })).reverse();
+  },
+
+  async findTodayMood(userId: string): Promise<MoodLog | undefined> {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const { data, error } = await supabaseAdmin
+      .from('mood_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('created_at', startOfToday.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (error || !data || data.length === 0) return undefined;
+
+    const m = data[0];
+    return {
+      id: m.id,
+      userId: m.user_id,
+      mood: m.mood,
+      moodValue: m.mood_value,
+      createdAt: m.created_at,
+    };
+  },
+
+  async update(id: string, data: Partial<Omit<MoodLog, 'id' | 'userId' | 'createdAt'>>): Promise<MoodLog | undefined> {
+    const updateData: any = {};
+    if (data.mood) updateData.mood = data.mood;
+    if (data.moodValue !== undefined) updateData.mood_value = data.moodValue;
+
+    const { data: updated, error } = await supabaseAdmin
+      .from('mood_logs')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !updated) return undefined;
+
+    return {
+      id: updated.id,
+      userId: updated.user_id,
+      mood: updated.mood,
+      moodValue: updated.mood_value,
+      createdAt: updated.created_at,
+    };
   },
 };
