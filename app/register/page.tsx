@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../store/useStore';
 import Link from 'next/link';
@@ -12,8 +12,18 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { registerApi } = useAuthStore();
+  const { registerApi, isAuthenticated, user, isLoading } = useAuthStore();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      if (user?.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
+    }
+  }, [isAuthenticated, user, isLoading, router]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

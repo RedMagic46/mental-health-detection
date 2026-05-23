@@ -2,7 +2,7 @@
 
 import { useAuthStore } from '../../store/useStore';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ShieldAlert } from 'lucide-react';
 
@@ -11,8 +11,14 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { loginApi } = useAuthStore();
+  const { loginApi, isAuthenticated, user, isLoading } = useAuthStore();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user?.role === 'admin') {
+      router.push('/admin/dashboard');
+    }
+  }, [isAuthenticated, user, isLoading, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
