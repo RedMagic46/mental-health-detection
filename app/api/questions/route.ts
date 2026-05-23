@@ -27,29 +27,30 @@ export async function GET(request: Request) {
     'depresi': 'Depresi',
   };
 
+  // 1. Filter berdasarkan kategori jika dipilih di interface user
   if (categoryParam) {
     const dbCategory = categoryMap[categoryParam.toLowerCase()] || categoryParam;
     filteredQuestions = filteredQuestions.filter(
       q => q.category && q.category.toLowerCase() === dbCategory.toLowerCase()
     );
-    
-    // Pastikan soal diurutkan sesuai primary key (id) secara menaik
-    filteredQuestions.sort((a, b) => a.id - b.id);
+  }
+
+  // 2. Filter dengan pilihan manual admin jika mode pemilihan manual aktif
+  if (config.selectionMode === 'manual' && config.manualQuestionIds.length > 0) {
+    filteredQuestions = filteredQuestions.filter(q => config.manualQuestionIds.includes(q.id));
+  }
+
+  // 3. Acak urutan pertanyaan jika "Acak Urutan" aktif atau menggunakan mode "Acak (Random)"
+  if (config.randomizeOrder || config.selectionMode === 'random') {
+    filteredQuestions = shuffle(filteredQuestions);
   } else {
-    // 1. Filter by manual selection if mode is manual
-    if (config.selectionMode === 'manual' && config.manualQuestionIds.length > 0) {
-      filteredQuestions = questions.filter(q => config.manualQuestionIds.includes(q.id));
-    }
+    // Urutkan default secara menaik berdasarkan ID (Primary Key) jika tidak diacak
+    filteredQuestions.sort((a, b) => a.id - b.id);
+  }
 
-    // 2. Randomize order if enabled OR if mode is random (to pick random set)
-    if (config.randomizeOrder || config.selectionMode === 'random') {
-      filteredQuestions = shuffle(filteredQuestions);
-    }
-
-    // 3. Limit the count
-    if (config.displayCount > 0) {
-      filteredQuestions = filteredQuestions.slice(0, config.displayCount);
-    }
+  // 4. Batasi jumlah pertanyaan sesuai dengan konfigurasi "Jumlah Pertanyaan Tampil"
+  if (config.displayCount > 0) {
+    filteredQuestions = filteredQuestions.slice(0, config.displayCount);
   }
 
   return Response.json(
