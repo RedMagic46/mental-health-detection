@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email } = body;
 
-    // Validate inputs
+    
     if (name && !isValidName(name)) {
       return errorResponse('Nama tidak valid.', 400);
     }
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return errorResponse('Format email tidak valid.', 400);
     }
 
-    // Check if email already taken by another user
+    
     if (email && email.toLowerCase() !== user.email.toLowerCase()) {
       const existingUser = await userRepo.findByEmail(email);
       if (existingUser) {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // Update user
+    
     const updatedUser = await userRepo.update(user.id, {
       name: name ? sanitize(name) : undefined,
       email: email ? email.toLowerCase().trim() : undefined,
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       return errorResponse('Gagal memperbarui profil.', 500);
     }
 
-    // Refresh session cookie with new data
+    
     const payload: JwtPayload = { 
       userId: updatedUser.id, 
       email: updatedUser.email, 

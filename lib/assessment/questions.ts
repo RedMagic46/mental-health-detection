@@ -1,91 +1,160 @@
 import type { Question } from '../types';
 
-/**
- * Default mental health screening questions.
- * Based on PHQ-9 (depression) and GAD-7 (anxiety) instruments.
- * Each answer is scored 0-3:
- *   0 = Tidak pernah
- *   1 = Beberapa hari
- *   2 = Lebih dari separuh waktu
- *   3 = Hampir setiap hari
- */
+
 export const defaultQuestions: Question[] = [
   {
     id: 1,
-    text: 'Dalam 2 minggu terakhir, seberapa sering Anda merasa sedih, tertekan, atau putus asa?',
-    category: 'Depresi',
+    text: 'Saya merasa sulit untuk tenang.',
+    category: 'Stress',
     weight: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 2,
-    text: 'Seberapa sering Anda kehilangan minat atau kesenangan dalam melakukan aktivitas sehari-hari?',
-    category: 'Anhedonia',
+    text: 'Saya merasa mulut saya kering.',
+    category: 'Kecemasan',
     weight: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 3,
-    text: 'Seberapa sering Anda merasa cemas, gugup, atau gelisah?',
-    category: 'Kecemasan',
+    text: 'Saya tidak dapat merasakan perasaan positif sama sekali.',
+    category: 'Depresi',
     weight: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 4,
-    text: 'Seberapa sering Anda mengalami kesulitan tidur atau tidur terlalu banyak?',
-    category: 'Tidur',
-    weight: 1,
-    createdAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 5,
-    text: 'Seberapa sering Anda merasa mudah lelah atau tidak memiliki energi?',
-    category: 'Energi',
-    weight: 1,
-    createdAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 6,
-    text: 'Seberapa sering Anda merasa buruk tentang diri sendiri, atau merasa Anda gagal?',
-    category: 'Harga Diri',
-    weight: 1,
-    createdAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 7,
-    text: 'Seberapa sering Anda sulit berkonsentrasi, misalnya saat membaca atau menonton TV?',
-    category: 'Konsentrasi',
-    weight: 1,
-    createdAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 8,
-    text: 'Seberapa sering Anda merasa tidak bisa menghentikan atau mengendalikan rasa khawatir?',
+    text: 'Saya mengalami kesulitan bernapas (misalnya napas cepat, terengah-engah tanpa aktivitas fisik).',
     category: 'Kecemasan',
     weight: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
+    id: 5,
+    text: 'Saya merasa kesulitan untuk memulai melakukan sesuatu.',
+    category: 'Depresi',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 6,
+    text: 'Saya cenderung bereaksi berlebihan terhadap suatu situasi.',
+    category: 'Stress',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 7,
+    text: 'Saya merasa gemetar (misalnya pada tangan).',
+    category: 'Kecemasan',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 8,
+    text: 'Saya merasa menggunakan banyak energi untuk merasa cemas.',
+    category: 'Stress',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
     id: 9,
-    text: 'Seberapa sering Anda merasa takut seolah-olah sesuatu yang buruk akan terjadi?',
+    text: 'Saya khawatir tentang situasi di mana saya mungkin panik dan mempermalukan diri sendiri.',
     category: 'Kecemasan',
     weight: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 10,
-    text: 'Seberapa sering Anda merasa nafsu makan menurun atau makan berlebihan?',
-    category: 'Nafsu Makan',
+    text: 'Saya merasa tidak ada hal baik yang dapat saya harapkan di masa depan.',
+    category: 'Depresi',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 11,
+    text: 'Saya mendapati diri saya mudah gelisah.',
+    category: 'Stress',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 12,
+    text: 'Saya merasa sulit untuk rileks.',
+    category: 'Stress',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 13,
+    text: 'Saya merasa sedih, murung, dan putus asa.',
+    category: 'Depresi',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 14,
+    text: 'Saya tidak sabar menghadapi hal yang menghalangi aktivitas saya.',
+    category: 'Stress',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 15,
+    text: 'Saya merasa hampir panik.',
+    category: 'Kecemasan',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 16,
+    text: 'Saya merasa tidak antusias terhadap apa pun.',
+    category: 'Depresi',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 17,
+    text: 'Saya merasa tidak berharga sebagai seorang manusia.',
+    category: 'Depresi',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 18,
+    text: 'Saya merasa mudah tersinggung.',
+    category: 'Stress',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 19,
+    text: 'Saya menyadari detak jantung saya meski tanpa aktivitas fisik (misalnya jantung berdebar cepat).',
+    category: 'Kecemasan',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 20,
+    text: 'Saya merasa takut tanpa alasan yang jelas.',
+    category: 'Kecemasan',
+    weight: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 21,
+    text: 'Saya merasa hidup ini tidak berarti.',
+    category: 'Depresi',
     weight: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
 ];
 
-/** Answer options for the assessment */
+
 export const answerOptions = [
   { value: 0, label: 'Tidak pernah' },
-  { value: 1, label: 'Beberapa hari' },
-  { value: 2, label: 'Lebih dari separuh waktu' },
-  { value: 3, label: 'Hampir setiap hari' },
+  { value: 1, label: 'Kadang-kadang' },
+  { value: 2, label: 'Sering' },
+  { value: 3, label: 'Sangat sering' },
 ] as const;

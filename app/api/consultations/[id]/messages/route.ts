@@ -13,7 +13,7 @@ export async function GET(
 
   const { id } = await params;
 
-  // Verify user owns this consultation
+  
   const consultation = await consultationRepo.findById(id);
   if (!consultation || consultation.userId !== user.id) {
     return errorResponse('Konsultasi tidak ditemukan.', 404);
@@ -34,7 +34,7 @@ export async function POST(
 
   const { id } = await params;
 
-  // Verify user owns this consultation
+  
   const consultation = await consultationRepo.findById(id);
   if (!consultation || consultation.userId !== user.id) {
     return errorResponse('Konsultasi tidak ditemukan.', 404);
@@ -55,7 +55,7 @@ export async function POST(
       message: sanitize(message),
     });
 
-    // Update consultation status to in_progress if it was new
+    
     if (consultation.status === 'new') {
       await consultationRepo.updateStatus(id, 'in_progress');
     }

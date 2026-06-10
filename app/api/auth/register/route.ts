@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email, password } = body;
 
-    // Validate inputs
+    
     if (!isValidName(name)) {
       return errorResponse('Nama tidak valid. Tidak boleh mengandung karakter khusus atau tag HTML.', 400);
     }
@@ -19,12 +19,12 @@ export async function POST(request: Request) {
       return errorResponse('Password minimal 6 karakter.', 400);
     }
 
-    // Check if email already taken
+    
     if (await userRepo.findByEmail(email)) {
       return errorResponse('Email sudah terdaftar.', 409);
     }
 
-    // Create user
+    
     const passwordHash = await hashPassword(password);
     const user = await userRepo.create({
       name: sanitize(name),
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       role: 'user',
     });
 
-    // Create session
+    
     const payload: JwtPayload = { userId: user.id, email: user.email, role: user.role };
     const token = createToken(payload);
     await setSessionCookie(token);

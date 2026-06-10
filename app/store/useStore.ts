@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type UserRole = 'user' | 'admin' | null;
+type UserRole = 'user' | 'admin' | 'consultant' | null;
 
 interface User {
   id: string;

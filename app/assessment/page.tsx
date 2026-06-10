@@ -79,6 +79,12 @@ function AssessmentContent() {
             percentage: String(a.percentage),
             label: a.label,
             recommendation: a.recommendation,
+            depScore: String(a.mlResult.depression.score),
+            depLevel: a.mlResult.depression.level,
+            anxScore: String(a.mlResult.anxiety.score),
+            anxLevel: a.mlResult.anxiety.level,
+            strScore: String(a.mlResult.stress.score),
+            strLevel: a.mlResult.stress.level,
           });
           router.push(`/assessment/result?${params.toString()}`);
         } else {

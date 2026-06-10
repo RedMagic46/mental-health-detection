@@ -21,7 +21,7 @@ interface Config {
 }
 
 export default function AdminQuestionsPage() {
-  const { user, isAuthenticated, isLoading } = useAuthStore();
+  const { user } = useAuthStore();
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [config, setConfig] = useState<Config | null>(null);
@@ -51,18 +51,14 @@ export default function AdminQuestionsPage() {
         setQuestions(qData.questions);
         setConfig(cData.config);
       }
-    } catch { /* silent */ } finally {
+    } catch {  } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (!isLoading && (!isAuthenticated || user?.role !== 'admin')) router.push('/admin/login');
-  }, [isAuthenticated, user, router, isLoading]);
-
-  useEffect(() => {
-    if (isAuthenticated && user?.role === 'admin') fetchData();
-  }, [isAuthenticated, user, fetchData]);
+    fetchData();
+  }, [fetchData]);
 
   const handleAdd = async () => {
     if (!newText.trim()) return;
@@ -139,7 +135,7 @@ export default function AdminQuestionsPage() {
     setConfig({ ...config, manualQuestionIds: newManualIds });
   };
 
-  if (isLoading || !isAuthenticated || user?.role !== 'admin') return null;
+  if (!user) return null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full flex-grow space-y-10">
@@ -156,7 +152,7 @@ export default function AdminQuestionsPage() {
         )}
       </div>
 
-      {/* SECTION: CONFIGURATION */}
+      
       <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div>
@@ -234,7 +230,7 @@ export default function AdminQuestionsPage() {
         )}
       </div>
 
-      {/* SECTION: QUESTIONS LIST */}
+      
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>

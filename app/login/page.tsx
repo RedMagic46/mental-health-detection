@@ -1,28 +1,40 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '../store/useStore';
 import Link from 'next/link';
-import { LogIn } from 'lucide-react';
+import { LogIn, Loader2 } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { loginApi, isAuthenticated, user, isLoading } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleRedirect = (defaultUrl: string) => {
+    const returnUrl = searchParams.get('returnUrl');
+    if (returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
+      router.push(returnUrl);
+    } else {
+      router.push(defaultUrl);
+    }
+  };
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       if (user?.role === 'admin') {
-        router.push('/admin/dashboard');
+        handleRedirect('/admin/dashboard');
+      } else if (user?.role === 'consultant') {
+        handleRedirect('/consultant/consultations');
       } else {
-        router.push('/dashboard');
+        handleRedirect('/dashboard');
       }
     }
-  }, [isAuthenticated, user, isLoading, router]);
+  }, [isAuthenticated, user, isLoading, router, searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,17 +43,18 @@ export default function LoginPage() {
     const result = await loginApi(email, password);
     setLoading(false);
     if (result.ok) {
-      // Refetch user to get role for redirect
       const res = await fetch('/api/me');
       if (res.ok) {
         const data = await res.json();
         if (data.user.role === 'admin') {
-          router.push('/admin/dashboard');
+          handleRedirect('/admin/dashboard');
+        } else if (data.user.role === 'consultant') {
+          handleRedirect('/consultant/consultations');
         } else {
-          router.push('/dashboard');
+          handleRedirect('/dashboard');
         }
       } else {
-        router.push('/dashboard');
+        handleRedirect('/dashboard');
       }
     } else {
       setError(result.error || 'Login gagal.');
@@ -80,9 +93,6 @@ export default function LoginPage() {
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="block text-sm font-medium text-foreground">Password</label>
-              <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
-                Lupa password?
-              </Link>
             </div>
             <input
               type="password"
@@ -92,6 +102,11 @@ export default function LoginPage() {
               placeholder="••••••••"
               required
             />
+            <div className="mt-2 text-right">
+              <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
+                Lupa password?
+              </Link>
+            </div>
           </div>
           <button
             type="submit"
@@ -108,13 +123,19 @@ export default function LoginPage() {
             Daftar sekarang
           </Link>
         </div>
-        
-        <div className="mt-8 text-center text-xs text-muted-foreground pt-6 border-t border-border">
-          <Link href="/admin/login" className="hover:text-foreground transition-colors">
-            Masuk sebagai Administrator
-          </Link>
-        </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex-grow flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

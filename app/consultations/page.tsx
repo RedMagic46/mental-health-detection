@@ -29,7 +29,7 @@ export default function ConsultationsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('chatbot');
 
-  // Chat state
+  
   const [consultations, setConsultations] = useState<ConsultationItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -50,7 +50,7 @@ export default function ConsultationsPage() {
     }
   }, [isAuthenticated, router, isLoading]);
 
-  // Load Zapier chatbot script
+  
   useEffect(() => {
     if (!isAuthenticated) return;
     const existingScript = document.querySelector('script[src*="zapier-interfaces"]');
@@ -63,7 +63,7 @@ export default function ConsultationsPage() {
     }
   }, [isAuthenticated]);
 
-  // Fetch consultations list
+  
   const fetchConsultations = useCallback(async () => {
     try {
       const res = await fetch('/api/consultations');
@@ -71,7 +71,7 @@ export default function ConsultationsPage() {
         const data = await res.json();
         setConsultations(data.consultations);
       }
-    } catch { /* silent */ } finally {
+    } catch {  } finally {
       setLoadingChats(false);
     }
   }, []);
@@ -82,7 +82,7 @@ export default function ConsultationsPage() {
     }
   }, [isAuthenticated, activeTab, fetchConsultations]);
 
-  // Fetch messages for selected consultation
+  
   const fetchMessages = useCallback(async (consultationId: string) => {
     try {
       const res = await fetch(`/api/consultations/${consultationId}/messages`);
@@ -90,10 +90,10 @@ export default function ConsultationsPage() {
         const data = await res.json();
         setMessages(data.messages);
       }
-    } catch { /* silent */ }
+    } catch {  }
   }, []);
 
-  // Polling for new messages
+  
   useEffect(() => {
     if (selectedId && activeTab === 'chat') {
       setLoadingMessages(true);
@@ -138,7 +138,7 @@ export default function ConsultationsPage() {
         await fetchConsultations();
         setSelectedId(data.consultation.id);
       }
-    } catch { /* silent */ } finally {
+    } catch {  } finally {
       setCreatingChat(false);
     }
   };
@@ -156,7 +156,7 @@ export default function ConsultationsPage() {
         setNewMessage('');
         await fetchMessages(selectedId);
       }
-    } catch { /* silent */ } finally {
+    } catch {  } finally {
       setSending(false);
     }
   };
@@ -199,9 +199,9 @@ export default function ConsultationsPage() {
         <p className="text-muted-foreground mt-2 text-lg">Pilih cara konsultasi yang paling nyaman untuk Anda.</p>
       </div>
 
-      {/* Unified Card Container */}
+      
       <div className="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
-        {/* Tab Navigation */}
+        
         <div className="flex border-b border-border">
           <button
             onClick={() => setActiveTab('chatbot')}
@@ -233,9 +233,9 @@ export default function ConsultationsPage() {
           </button>
         </div>
 
-        {/* Tab Content */}
+        
         <div>
-          {/* Chatbot Tab */}
+          
           {activeTab === 'chatbot' && (
             <div className="p-6 sm:p-8">
               <div className="flex items-center gap-3 mb-5">
@@ -255,10 +255,10 @@ export default function ConsultationsPage() {
             </div>
           )}
 
-          {/* Chat Admin Tab */}
+          
           {activeTab === 'chat' && (
             <div className="flex" style={{ height: '600px' }}>
-              {/* Sidebar - Chat List */}
+              
               <div className="w-72 border-r border-border flex flex-col bg-slate-50/50 shrink-0">
                 <div className="p-4 border-b border-border">
                   <button
@@ -302,10 +302,10 @@ export default function ConsultationsPage() {
                 </div>
               </div>
 
-              {/* Chat Area */}
+              
               <div className="flex-1 flex flex-col min-w-0">
                 {showNewChatForm ? (
-                  /* New Chat Form */
+                  
                   <div className="flex-1 flex items-center justify-center p-8">
                     <div className="w-full max-w-md space-y-4">
                       <div className="text-center mb-6">
@@ -339,9 +339,9 @@ export default function ConsultationsPage() {
                     </div>
                   </div>
                 ) : selectedId ? (
-                  /* Chat Messages */
+                  
                   <>
-                    {/* Chat Header */}
+                    
                     <div className="px-5 py-3.5 border-b border-border bg-white flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-100 to-teal-50 flex items-center justify-center">
                         <Shield className="w-4.5 h-4.5 text-primary" />
@@ -355,7 +355,7 @@ export default function ConsultationsPage() {
                       </div>
                     </div>
 
-                    {/* Messages */}
+                    
                     <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-slate-50/30">
                       {loadingMessages ? (
                         <div className="flex items-center justify-center h-full">
@@ -402,7 +402,7 @@ export default function ConsultationsPage() {
                       <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Message Input */}
+                    
                     <div className="px-4 py-3 border-t border-border bg-white">
                       <div className="flex items-end gap-2">
                         <textarea
@@ -425,7 +425,7 @@ export default function ConsultationsPage() {
                     </div>
                   </>
                 ) : (
-                  /* Empty State */
+                  
                   <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mx-auto mb-4">
@@ -442,7 +442,7 @@ export default function ConsultationsPage() {
         </div>
       </div>
 
-      {/* Panduan */}
+      
       <div className="mt-6 bg-primary/5 p-5 rounded-2xl border border-primary/20">
         <h3 className="font-semibold text-sm text-primary mb-2">Panduan Konsultasi</h3>
         <ul className="space-y-1.5 text-sm text-muted-foreground">

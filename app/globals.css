@@ -1,19 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f0fdfa;
-  --foreground: #1a1a2e;
+  --background: #f8f9ff;
+  --foreground: #101c2c;
 
-  --primary: #0d9488;
+  --primary: #076148;
   --primary-foreground: #ffffff;
 
-  --muted: #e2e8f0;
-  --muted-foreground: #64748b;
+  --muted: #eff4ff;
+  --muted-foreground: #3f4944;
 
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
-  --border: #cbd5e1;
+  --border: #bec9c2;
+
+  /* MindCare Brand specific colors */
+  --primary-fixed: #a5f2d1;
+  --primary-fixed-dim: #8ad6b6;
+  --secondary: #516161;
+  --secondary-fixed: #d4e6e5;
+  --secondary-fixed-dim: #b8cac9;
+  --tertiary: #525655;
+  --surface-container: #e6eeff;
+  --surface-container-low: #eff4ff;
+  --surface-container-high: #dde9ff;
+  --surface-container-lowest: #ffffff;
+  --surface-bright: #f8f9ff;
+  --surface-variant: #d7e3f9;
+  --surface-dim: #cedbf0;
+  --on-surface: #101c2c;
+  --on-surface-variant: #3f4944;
 }
 
 @theme inline {
@@ -31,12 +48,35 @@
 
   --color-border: var(--border);
 
-  --font-sans: var(--font-geist-sans);
+  /* MindCare Brand specific colors */
+  --color-primary-fixed: var(--primary-fixed);
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
+  --color-secondary: var(--secondary);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-secondary-fixed-dim: var(--secondary-fixed-dim);
+  --color-tertiary: var(--tertiary);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-variant: var(--surface-variant);
+  --color-surface-dim: var(--surface-dim);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+
+  --font-sans: var(--font-plus-jakarta-sans), var(--font-geist-sans), Arial, Helvetica, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
+
+.hero-pattern {
+  background-color: #076148;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+

@@ -4,10 +4,10 @@ import { isValidEmail, isValidPassword, errorResponse } from '@/lib/validation';
 import { seedAdmin } from '@/lib/seed';
 import type { JwtPayload } from '@/lib/types';
 
-// Simple in-memory rate limiter for login attempts
+
 const loginAttemptLog = new Map<string, { count: number; blockedUntil: number }>();
 const MAX_LOGIN_ATTEMPTS = 10;
-const BLOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+const BLOCK_DURATION_MS = 15 * 60 * 1000; 
 
 function isLoginBlocked(key: string): boolean {
   const now = Date.now();
@@ -32,13 +32,13 @@ function recordLoginAttempt(key: string): void {
 
 export async function POST(request: Request) {
   try {
-    // Ensure admin exists (in-memory mode resets on cold start)
+    
     await seedAdmin();
 
     const body = await request.json();
     const { email, password } = body;
 
-    // Validate inputs
+    
     if (!isValidEmail(email)) {
       return errorResponse('Format email tidak valid.', 400);
     }
@@ -48,26 +48,26 @@ export async function POST(request: Request) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Rate limiting check
+    
     if (isLoginBlocked(normalizedEmail)) {
       return errorResponse('Terlalu banyak percobaan login. Silakan coba lagi dalam 15 menit.', 429);
     }
 
-    // Find user
+    
     const user = await userRepo.findByEmail(normalizedEmail);
     if (!user) {
       recordLoginAttempt(normalizedEmail);
       return errorResponse('Email atau password salah.', 401);
     }
 
-    // Verify password
+    
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
       recordLoginAttempt(normalizedEmail);
       return errorResponse('Email atau password salah.', 401);
     }
 
-    // Create session
+    
     const payload: JwtPayload = { userId: user.id, email: user.email, role: user.role };
     const token = createToken(payload);
     await setSessionCookie(token);

@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth';
-import { consultationRepo } from '@/lib/db';
+import { consultationRepo, userRepo } from '@/lib/db';
 import { isNonEmptyString, isValidEmail, isValidName, sanitize, errorResponse } from '@/lib/validation';
+import { sendNewConsultationAlert } from '@/lib/email';
 
 export async function GET() {
   const user = await requireAuth();
@@ -21,10 +22,8 @@ export async function POST(request: Request) {
       return errorResponse('Pesan konsultasi harus diisi.', 400);
     }
 
-    // User can be authenticated or anonymous
     const user = await requireAuth();
 
-    // Reject names with HTML/script content
     if (isNonEmptyString(name) && !isValidName(name)) {
       return errorResponse('Nama tidak valid. Tidak boleh mengandung tag HTML.', 400);
     }
@@ -35,6 +34,15 @@ export async function POST(request: Request) {
       email: isValidEmail(email) ? email.toLowerCase().trim() : (user?.email ?? ''),
       message: sanitize(message),
       status: 'new',
+    });
+
+    userRepo.findAll().then((users) => {
+      const adminEmails = users.filter((u) => u.role === 'admin').map((u) => u.email);
+      for (const adminEmail of adminEmails) {
+        sendNewConsultationAlert(adminEmail, consultation.name, consultation.email, consultation.message);
+      }
+    }).catch((err) => {
+      console.error('Error sending new consultation alert emails:', err);
     });
 
     return Response.json(
@@ -52,4 +60,3 @@ export async function POST(request: Request) {
     return errorResponse('Terjadi kesalahan server.', 500);
   }
 }
-

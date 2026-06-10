@@ -86,7 +86,7 @@ export default function ProfilePage() {
       )}
 
       <div className="grid md:grid-cols-3 gap-8">
-        {/* Profile Card */}
+        
         <div className="md:col-span-1">
           <div className="bg-white border border-border rounded-2xl p-6 text-center shadow-sm">
             <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary border-4 border-primary/5 mx-auto mb-4">
@@ -106,7 +106,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Details Section */}
+        
         <div className="md:col-span-2 space-y-6">
           <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm">
             <div className="px-6 py-4 border-b border-border bg-slate-50/50 flex justify-between items-center">

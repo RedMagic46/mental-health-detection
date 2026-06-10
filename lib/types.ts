@@ -1,8 +1,4 @@
-// ============================================================
-// Core data types for MindCare Mental Health Detection
-// ============================================================
-
-export type UserRole = 'user' | 'admin';
+export type UserRole = 'user' | 'admin' | 'consultant';
 
 export interface User {
   id: string;
@@ -11,9 +7,9 @@ export interface User {
   passwordHash: string;
   role: UserRole;
   createdAt: string;
+  lastActiveAt: string | null;
 }
 
-/** Safe user object without sensitive data */
 export type SafeUser = Omit<User, 'passwordHash'>;
 
 export interface Assessment {
@@ -36,13 +32,15 @@ export interface Consultation {
   message: string;
   status: ConsultationStatus;
   createdAt: string;
+  assignedConsultantId?: string | null;
+  internalNotes?: string | null;
 }
 
 export interface ChatMessage {
   id: string;
   consultationId: string;
   senderId: string;
-  senderRole: 'user' | 'admin';
+  senderRole: 'user' | 'admin' | 'consultant';
   message: string;
   createdAt: string;
 }
@@ -83,4 +81,54 @@ export interface AssessmentConfig {
   selectionMode: 'manual' | 'random';
   manualQuestionIds: number[];
   randomizeOrder: boolean;
+}
+
+export interface SuccessStory {
+  id: number;
+  title: string;
+  content: string;
+  authorName: string;
+  authorRole: string;
+  rating: number;
+  createdAt: string;
+}
+
+export interface CommunityForum {
+  id: number;
+  title: string;
+  icon: string;
+  link: string;
+  createdAt: string;
+}
+
+export interface Faq {
+  id: number;
+  question: string;
+  answer: string;
+  createdAt: string;
+}
+
+export interface ForumThread {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  userId: string;
+  userName?: string;
+  isAnonymous: boolean;
+  likesCount: number;
+  commentsCount: number;
+  likedByCurrentUser?: boolean;
+  isPrivate: boolean;
+  createdAt: string;
+}
+
+export interface ForumComment {
+  id: string;
+  threadId: string;
+  content: string;
+  userId: string;
+  userName?: string;
+  isAnonymous: boolean;
+  createdAt: string;
 }

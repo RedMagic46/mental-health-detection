@@ -1,27 +1,18 @@
-// ============================================================
-// Authentication helpers
-// JWT-based session with HttpOnly cookies
-// ============================================================
-
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { userRepo } from './db';
+import { recordUserActivity } from './activity';
 import type { JwtPayload, SafeUser, User } from './types';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('FATAL: JWT_SECRET environment variable is not set!');
-  }
-  console.warn('[AUTH] WARNING: JWT_SECRET not set, using insecure default. Set JWT_SECRET in .env.local!');
+  throw new Error('FATAL: JWT_SECRET environment variable is not set!');
 }
-const SECRET = JWT_SECRET || 'mindcare-dev-secret-DO-NOT-USE-IN-PROD';
+const SECRET = JWT_SECRET;
 const COOKIE_NAME = 'mindcare_session';
 const TOKEN_EXPIRY = '7d';
 const SALT_ROUNDS = 10;
-
-// --------------- Password helpers ---------------
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, SALT_ROUNDS);
@@ -30,8 +21,6 @@ export async function hashPassword(password: string): Promise<string> {
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
-
-// --------------- JWT helpers ---------------
 
 export function createToken(payload: JwtPayload): string {
   return jwt.sign(payload, SECRET, { expiresIn: TOKEN_EXPIRY });
@@ -45,15 +34,13 @@ export function verifyToken(token: string): JwtPayload | null {
   }
 }
 
-// --------------- Cookie helpers ---------------
-
 export async function setSessionCookie(token: string): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60 * 24 * 7,
     path: '/',
   });
 }
@@ -68,18 +55,11 @@ export async function getSessionToken(): Promise<string | undefined> {
   return cookieStore.get(COOKIE_NAME)?.value;
 }
 
-// --------------- Auth guards ---------------
-
-/** Strip passwordHash from User object */
 export function toSafeUser(user: User): SafeUser {
   const { passwordHash: _, ...safe } = user;
   return safe;
 }
 
-/**
- * Require authenticated user. Returns SafeUser or null.
- * Use in Route Handlers to protect endpoints.
- */
 export async function requireAuth(): Promise<SafeUser | null> {
   const token = await getSessionToken();
   if (!token) return null;
@@ -90,14 +70,19 @@ export async function requireAuth(): Promise<SafeUser | null> {
   const user = await userRepo.findById(payload.userId);
   if (!user) return null;
 
+  recordUserActivity(user.id);
+
   return toSafeUser(user);
 }
 
-/**
- * Require admin user. Returns SafeUser or null.
- */
 export async function requireAdmin(): Promise<SafeUser | null> {
   const user = await requireAuth();
   if (!user || user.role !== 'admin') return null;
+  return user;
+}
+
+export async function requireStaff(): Promise<SafeUser | null> {
+  const user = await requireAuth();
+  if (!user || (user.role !== 'admin' && user.role !== 'consultant')) return null;
   return user;
 }

@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Validate input types and values before passing to repo
+    
     const validated: Record<string, unknown> = {};
 
     if (body.displayCount !== undefined) {

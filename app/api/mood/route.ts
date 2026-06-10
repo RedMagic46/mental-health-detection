@@ -11,7 +11,7 @@ export async function GET() {
   const logs = await moodRepo.findByUserId(user.id);
   const todayMood = await moodRepo.findTodayMood(user.id);
 
-  // Format chart data for MoodChart component
+  
   const chartData = logs.map((m) => ({
     day: new Date(m.createdAt).toLocaleDateString('en-US', { weekday: 'short' }),
     mood: m.moodValue,
@@ -38,15 +38,15 @@ export async function POST(request: Request) {
 
     const moodValue = mood === 'good' ? 5 : mood === 'neutral' ? 3 : 1;
 
-    // Check if user already logged mood today
+    
     const todayMood = await moodRepo.findTodayMood(user.id);
     let result;
 
     if (todayMood) {
-      // Update today's mood
+      
       result = await moodRepo.update(todayMood.id, { mood, moodValue });
     } else {
-      // Create new mood log
+      
       result = await moodRepo.create({
         userId: user.id,
         mood,
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       });
     }
 
-    // Fetch updated chart data
+    
     const logs = await moodRepo.findByUserId(user.id);
     const chartData = logs.map((m) => ({
       day: new Date(m.createdAt).toLocaleDateString('en-US', { weekday: 'short' }),

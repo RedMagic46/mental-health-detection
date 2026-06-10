@@ -1,6 +1,6 @@
 import { questionRepo, settingsRepo } from '@/lib/db';
 
-/** Fisher-Yates shuffle — produces unbiased random ordering */
+
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     'depresi': 'Depresi',
   };
 
-  // 1. Filter berdasarkan kategori jika dipilih di interface user
+  
   if (categoryParam) {
     const dbCategory = categoryMap[categoryParam.toLowerCase()] || categoryParam;
     filteredQuestions = filteredQuestions.filter(
@@ -35,20 +35,20 @@ export async function GET(request: Request) {
     );
   }
 
-  // 2. Filter dengan pilihan manual admin jika mode pemilihan manual aktif
+  
   if (config.selectionMode === 'manual' && config.manualQuestionIds.length > 0) {
     filteredQuestions = filteredQuestions.filter(q => config.manualQuestionIds.includes(q.id));
   }
 
-  // 3. Acak urutan pertanyaan jika "Acak Urutan" aktif atau menggunakan mode "Acak (Random)"
+  
   if (config.randomizeOrder || config.selectionMode === 'random') {
     filteredQuestions = shuffle(filteredQuestions);
   } else {
-    // Urutkan default secara menaik berdasarkan ID (Primary Key) jika tidak diacak
+    
     filteredQuestions.sort((a, b) => a.id - b.id);
   }
 
-  // 4. Batasi jumlah pertanyaan sesuai dengan konfigurasi "Jumlah Pertanyaan Tampil"
+  
   if (config.displayCount > 0) {
     filteredQuestions = filteredQuestions.slice(0, config.displayCount);
   }

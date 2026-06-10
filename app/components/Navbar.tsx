@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { HeartPulse, User as UserIcon, LogOut, LayoutDashboard, ClipboardList, MessageSquare, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '../store/useStore';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 
 export default function Navbar() {
   const { isAuthenticated, user, logoutApi, fetchUser, isLoading } = useAuthStore();
   const router = useRouter();
+  const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -16,7 +17,7 @@ export default function Navbar() {
     fetchUser();
   }, [fetchUser]);
 
-  // Close dropdown when clicking outside
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -32,6 +33,11 @@ export default function Navbar() {
     setIsDropdownOpen(false);
     router.push('/');
   };
+
+  
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
 
   if (isLoading) {
     return (
@@ -68,6 +74,9 @@ export default function Navbar() {
           <nav className="flex items-center gap-2 sm:gap-4">
             {!isAuthenticated ? (
               <>
+                <Link href="/forum" className="text-muted-foreground hover:text-primary hover:bg-primary/5 px-4 py-2 rounded-full text-sm font-semibold transition-all">
+                  Forum
+                </Link>
                 <Link href="/login" className="text-muted-foreground hover:text-primary px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-primary/5">
                   Login
                 </Link>
@@ -77,14 +86,17 @@ export default function Navbar() {
               </>
             ) : (
               <div className="flex items-center gap-2 sm:gap-4">
-                {/* Desktop Navigation Links */}
+                
                 <div className="hidden md:flex items-center gap-1">
                   <Link href={user?.role === 'admin' ? "/admin/dashboard" : "/dashboard"} className="text-muted-foreground hover:text-primary hover:bg-primary/5 px-4 py-2 rounded-full text-sm font-semibold transition-all">
                     Dashboard
                   </Link>
+                  <Link href="/forum" className="text-muted-foreground hover:text-primary hover:bg-primary/5 px-4 py-2 rounded-full text-sm font-semibold transition-all">
+                    Forum
+                  </Link>
                   {user?.role === 'user' && (
                     <>
-                      <Link href="/assessment/category" className="text-muted-foreground hover:text-primary hover:bg-primary/5 px-4 py-2 rounded-full text-sm font-semibold transition-all">
+                      <Link href="/assessment" className="text-muted-foreground hover:text-primary hover:bg-primary/5 px-4 py-2 rounded-full text-sm font-semibold transition-all">
                         Tes
                       </Link>
                       <Link href="/consultations" className="text-muted-foreground hover:text-primary hover:bg-primary/5 px-4 py-2 rounded-full text-sm font-semibold transition-all">
@@ -104,7 +116,7 @@ export default function Navbar() {
                   )}
                 </div>
 
-                {/* Profile Dropdown */}
+                
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -135,10 +147,18 @@ export default function Navbar() {
                           <LayoutDashboard className="w-4 h-4" />
                           Dashboard
                         </Link>
+                        <Link
+                          href="/forum"
+                          className="flex items-center gap-3 px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          Forum Komunitas
+                        </Link>
                         {user?.role === 'user' && (
                           <>
                             <Link
-                              href="/assessment/category"
+                              href="/assessment"
                               className="flex items-center gap-3 px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
                               onClick={() => setIsDropdownOpen(false)}
                             >

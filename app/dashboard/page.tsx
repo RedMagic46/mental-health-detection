@@ -7,6 +7,31 @@ import Link from 'next/link';
 import { FileText, Calendar, Activity, ArrowRight, Smile, Meh, Frown } from 'lucide-react';
 import MoodChart from "../components/MoodChart";
 
+const MENTAL_HEALTH_TIPS = [
+  "Tarik napas dalam-dalam, tahan selama 4 detik, dan hembuskan perlahan.",
+  "Sempatkan berjalan kaki selama 10 menit di luar ruangan untuk menjernihkan pikiran.",
+  "Tuliskan tiga hal yang Anda syukuri hari ini, sekecil apa pun itu.",
+  "Batasi waktu layar (screen time) Anda sebelum tidur untuk istirahat yang lebih berkualitas.",
+  "Ingatlah bahwa tidak apa-apa untuk merasa tidak baik-baik saja. Berikan diri Anda ruang untuk berproses.",
+  "Cobalah minum segelas air putih hangat dan lakukan peregangan otot ringan saat merasa jenuh.",
+  "Fokuslah pada apa yang bisa Anda kendalikan saat ini, dan biarkan sisanya mengalir apa adanya.",
+  "Bicarakan apa yang mengganjal di pikiran Anda dengan seseorang yang Anda percayai.",
+  "Kurangi asupan kafein berlebih hari ini jika Anda merasa cemas atau gelisah.",
+  "Mendengarkan musik favorit Anda selama 15 menit dapat meningkatkan mood secara instan.",
+  "Bersikaplah lembut pada diri sendiri hari ini. Anda sudah melakukan yang terbaik.",
+  "Batasi konsumsi berita negatif atau media sosial jika Anda merasa mulai cemas.",
+  "Lakukan hobi atau aktivitas kreatif singkat hari ini untuk menyegarkan pikiran Anda.",
+  "Rapikan meja kerja atau kamar Anda. Lingkungan yang rapi membantu menenangkan pikiran.",
+  "Ucapkan kata-kata afirmasi positif pada diri sendiri di depan cermin sebelum memulai hari.",
+  "Sempatkan menghubungi teman dekat atau keluarga untuk sekadar menanyakan kabar.",
+  "Nikmati makanan Anda dengan perlahan tanpa gangguan gawai (mindful eating).",
+  "Jangan ragu untuk menolak permintaan orang lain jika energi mental Anda sedang terbatas.",
+  "Biarkan diri Anda tertawa hari ini dengan menonton video lucu atau membaca komik ringan.",
+  "Cobalah teknik grounding 5-4-3-2-1 saat merasa cemas untuk kembali fokus pada saat ini.",
+  "Tidur siang singkat selama 15-20 menit dapat mengembalikan fokus dan energi Anda.",
+  "Ingatlah bahwa proses pemulihan tidak selalu berjalan mulus, dan itu sangat wajar."
+];
+
 interface AssessmentHistory {
   id: string;
   score: number;
@@ -21,6 +46,12 @@ export default function UserDashboard() {
   const [moodData, setMoodData] = useState<{ day: string; mood: number }[]>([]);
   const [history, setHistory] = useState<AssessmentHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [dailyTip, setDailyTip] = useState("");
+
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * MENTAL_HEALTH_TIPS.length);
+    setDailyTip(MENTAL_HEALTH_TIPS[randomIndex]);
+  }, []);
 
   const fetchHistory = useCallback(async () => {
     try {
@@ -29,7 +60,7 @@ export default function UserDashboard() {
         const data = await res.json();
         setHistory(data.assessments);
       }
-    } catch { /* silent */ } finally {
+    } catch {  } finally {
       setLoadingHistory(false);
     }
   }, []);
@@ -44,7 +75,7 @@ export default function UserDashboard() {
           setSelectedMood(data.todayMood.mood);
         }
       }
-    } catch { /* silent */ }
+    } catch {  }
   }, []);
 
   const handleMoodSelect = async (mood: string) => {
@@ -61,12 +92,18 @@ export default function UserDashboard() {
           setMoodData(data.chartData);
         }
       }
-    } catch { /* silent */ }
+    } catch {  }
   };
 
   useEffect(() => {
-    if (!isLoading && (!isAuthenticated || user?.role !== 'user')) {
-      router.push('/login');
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        router.push('/login');
+      } else if (user?.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else if (user?.role === 'consultant') {
+        router.push('/consultant/consultations');
+      }
     }
   }, [isAuthenticated, user, router, isLoading]);
 
@@ -97,7 +134,7 @@ export default function UserDashboard() {
             <div>
               <h2 className="text-2xl font-semibold mb-2">Cek Kondisi Anda Hari Ini</h2>
               <p className="text-primary-foreground/80 mb-4 max-w-md">Ikuti kuesioner singkat kami untuk mendeteksi potensi masalah kesehatan mental lebih dini.</p>
-              <Link href="/assessment/category" className="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-full font-semibold hover:bg-teal-50 transition-colors">
+              <Link href="/assessment" className="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-full font-semibold hover:bg-teal-50 transition-colors">
                 Mulai Kuesioner <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -114,7 +151,7 @@ export default function UserDashboard() {
               ) : history.length === 0 ? (
                 <>
                   <p className="text-muted-foreground text-sm mb-4">Belum ada tes.</p>
-                  <Link href="/assessment/category" className="text-primary text-sm font-medium hover:underline">Mulai tes pertama</Link>
+                  <Link href="/assessment" className="text-primary text-sm font-medium hover:underline">Mulai tes pertama</Link>
                 </>
               ) : (
                 <div className="space-y-2">
@@ -166,7 +203,7 @@ export default function UserDashboard() {
           <MoodChart data={moodData} />
           <div className="bg-slate-50 p-6 rounded-2xl border border-border">
             <h3 className="font-semibold text-lg mb-2">Tips Hari Ini</h3>
-            <p className="text-sm text-muted-foreground italic">&quot;Tarik napas dalam-dalam, tahan selama 4 detik, dan hembuskan perlahan.&quot;</p>
+            <p className="text-sm text-muted-foreground italic">&quot;{dailyTip || "Tarik napas dalam-dalam, tahan selama 4 detik, dan hembuskan perlahan."}&quot;</p>
           </div>
         </div>
       </div>

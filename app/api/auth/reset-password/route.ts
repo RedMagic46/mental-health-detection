@@ -49,38 +49,38 @@ export async function POST(request: Request) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if this email is blocked from too many attempts
+    
     if (isVerifyBlocked(normalizedEmail)) {
       return errorResponse('Terlalu banyak percobaan. Silakan coba lagi nanti.', 429);
     }
 
-    // Verify OTP
+    
     const validReset = await passwordResetRepo.findValidOTP(normalizedEmail, otp);
     if (!validReset) {
-      // Record failed attempt
+      
       recordVerifyAttempt(normalizedEmail);
       return errorResponse('Kode OTP tidak valid atau sudah kadaluwarsa.', 400);
     }
 
-    // OTP valid — clear attempt counter
+    
     clearVerifyAttempts(normalizedEmail);
 
-    // Hash new password
+    
     const passwordHash = await hashPassword(newPassword);
 
-    // Find user by email
+    
     const user = await userRepo.findByEmail(normalizedEmail);
     if (!user) {
       return errorResponse('Pengguna tidak ditemukan.', 404);
     }
 
-    // Update user password
+    
     const updated = await userRepo.update(user.id, { passwordHash });
     if (!updated) {
       return errorResponse('Gagal memperbarui password.', 500);
     }
 
-    // Delete the used OTP
+    
     await passwordResetRepo.deleteByEmail(normalizedEmail);
 
     return Response.json({ message: 'Password berhasil diperbarui. Silakan login kembali.' });
