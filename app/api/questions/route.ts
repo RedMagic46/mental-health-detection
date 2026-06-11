@@ -40,17 +40,33 @@ export async function GET(request: Request) {
     filteredQuestions = filteredQuestions.filter(q => config.manualQuestionIds.includes(q.id));
   }
 
-  
-  if (config.randomizeOrder || config.selectionMode === 'random') {
-    filteredQuestions = shuffle(filteredQuestions);
-  } else {
-    
-    filteredQuestions.sort((a, b) => a.id - b.id);
-  }
+  if (!categoryParam && config.displayCount === 21 && config.selectionMode === 'random') {
+    const stressQ = filteredQuestions.filter(q => q.category && q.category.toLowerCase() === 'stress');
+    const anxietyQ = filteredQuestions.filter(q => q.category && q.category.toLowerCase() === 'kecemasan');
+    const depressionQ = filteredQuestions.filter(q => q.category && q.category.toLowerCase() === 'depresi');
 
-  
-  if (config.displayCount > 0) {
-    filteredQuestions = filteredQuestions.slice(0, config.displayCount);
+    if (stressQ.length >= 7 && anxietyQ.length >= 7 && depressionQ.length >= 7) {
+      filteredQuestions = [
+        ...shuffle(stressQ).slice(0, 7),
+        ...shuffle(anxietyQ).slice(0, 7),
+        ...shuffle(depressionQ).slice(0, 7)
+      ];
+      if (config.randomizeOrder) {
+        filteredQuestions = shuffle(filteredQuestions);
+      }
+    } else {
+      filteredQuestions = shuffle(filteredQuestions).slice(0, 21);
+    }
+  } else {
+    if (config.randomizeOrder || config.selectionMode === 'random') {
+      filteredQuestions = shuffle(filteredQuestions);
+    } else {
+      filteredQuestions.sort((a, b) => a.id - b.id);
+    }
+
+    if (config.displayCount > 0) {
+      filteredQuestions = filteredQuestions.slice(0, config.displayCount);
+    }
   }
 
   return Response.json(

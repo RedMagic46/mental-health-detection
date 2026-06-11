@@ -13,9 +13,9 @@ interface Question {
 
 const options = [
   { value: 0, label: 'Tidak pernah' },
-  { value: 1, label: 'Beberapa hari' },
-  { value: 2, label: 'Lebih dari separuh waktu' },
-  { value: 3, label: 'Hampir setiap hari' },
+  { value: 1, label: 'Kadang-kadang' },
+  { value: 2, label: 'Sering' },
+  { value: 3, label: 'Hampir setiap saat' },
 ];
 
 function AssessmentContent() {
@@ -125,11 +125,10 @@ function AssessmentContent() {
         <div className="space-y-4 mb-12">
           {options.map((option) => (
             <button key={option.value} onClick={() => handleSelect(option.value)}
-              className={`w-full text-left p-5 rounded-xl border-2 transition-all flex items-center justify-between ${
-                answers[currentQ.id] === option.value
+              className={`w-full text-left p-5 rounded-xl border-2 transition-all flex items-center justify-between ${answers[currentQ.id] === option.value
                   ? 'border-primary bg-teal-50 text-primary'
                   : 'border-border hover:border-primary/50 text-foreground'
-              }`}>
+                }`}>
               <span className="text-lg font-medium">{option.label}</span>
               {answers[currentQ.id] === option.value && <CheckCircle2 className="w-6 h-6" />}
             </button>
@@ -142,9 +141,8 @@ function AssessmentContent() {
             Sebelumnya
           </button>
           <button onClick={handleNext} disabled={!isAnswered || isSubmitting}
-            className={`px-8 py-3 font-semibold rounded-lg flex items-center gap-2 transition-all ${
-              !isAnswered || isSubmitting ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-primary text-primary-foreground hover:bg-primary/90'
-            }`}>
+            className={`px-8 py-3 font-semibold rounded-lg flex items-center gap-2 transition-all ${!isAnswered || isSubmitting ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-primary text-primary-foreground hover:bg-primary/90'
+              }`}>
             {isSubmitting ? 'Memproses...' : currentStep === questions.length - 1 ? 'Selesai' : 'Selanjutnya'}
             {!isSubmitting && currentStep < questions.length - 1 && <ArrowRight className="w-5 h-5" />}
           </button>
