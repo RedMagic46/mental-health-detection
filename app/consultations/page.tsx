@@ -249,7 +249,7 @@ export default function ConsultationsPage() {
               </div>
               <div className="w-full rounded-xl overflow-hidden border border-border"
                 dangerouslySetInnerHTML={{
-                  __html: `<zapier-interfaces-chatbot-embed is-popup="false" chatbot-id="cmomevos8005le1he077exwlw" height="550px" width="100%"></zapier-interfaces-chatbot-embed>`
+                  __html: `<zapier-interfaces-chatbot-embed is-popup="false" chatbot-id="cmqcb2lja006mh4yh3j8z6a3i" height="600px" width="100%"></zapier-interfaces-chatbot-embed>`
                 }}
               />
             </div>
